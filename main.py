@@ -1,9 +1,10 @@
 #main.py
 from database import setup_database
-setup_database()
 from book_functions import add_book, view_books, search_books, update_book, delete_book
 from member_functions import add_member, view_members, search_members, update_member, delete_member
 from borrow_functions import borrow_book, return_book, view_borrow_records
+
+setup_database()
 
 while True:
     print("\n\tLibrary Management System")
