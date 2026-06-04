@@ -1,6 +1,8 @@
 # Library Management System
 
-A Command-Line Interface (CLI) application built with Python and MySQL for managing library operations. The system allows librarians to manage books and members, issue and return books, and maintain borrowing records with automatic inventory updates.
+A Command-Line Interface (CLI) application built with **Python** and **MySQL** for managing basic library operations. The system allows users to manage books and members, borrow and return books, and maintain borrowing records with automatic inventory updates.
+
+This project uses a **modular file structure**, where database setup, book functions, member functions, borrowing functions, and the main menu are separated into different Python files for better readability, maintainability, and collaborative development.
 
 ---
 
@@ -22,11 +24,13 @@ A Command-Line Interface (CLI) application built with Python and MySQL for manag
 * Update member details
 * Delete members from the database
 
-### Borrowing & Return System
+### Borrowing and Return System
 
 * Borrow books for registered members
-* Automatic quantity reduction when a book is borrowed
-* Return books and automatically restock inventory
+* Check book quantity before borrowing
+* Automatically reduce book quantity when borrowed
+* Return borrowed books
+* Automatically increase book quantity after return
 * Maintain borrowing history records
 
 ### Borrow Records
@@ -42,60 +46,119 @@ A Command-Line Interface (CLI) application built with Python and MySQL for manag
 * Python 3
 * MySQL
 * PyMySQL
+* Git and GitHub
+
+---
+
+## Project Structure
+
+```text
+library-management-system/
+│
+├── main.py
+├── database.py
+├── book_functions.py
+├── member_functions.py
+├── borrow_functions.py
+├── requirements.txt
+├── README.md
+├── .gitignore
+└── .gitattributes
+```
+
+### File Description
+
+| File                  | Description                                                                                           |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `main.py`             | Contains the main menu and controls the program flow                                                  |
+| `database.py`         | Handles MySQL connection, database creation, and table creation                                       |
+| `book_functions.py`   | Contains book-related operations such as adding, viewing, searching, updating, and deleting books     |
+| `member_functions.py` | Contains member-related operations such as adding, viewing, searching, updating, and deleting members |
+| `borrow_functions.py` | Contains book borrowing, book returning, and borrow-record viewing functions                          |
+| `requirements.txt`    | Contains required Python packages                                                                     |
+| `README.md`           | Contains project documentation                                                                        |
 
 ---
 
 ## Database Structure
 
-### Books Table
+### Database Name
 
-| Column   | Type              |
-| -------- | ----------------- |
-| book_id  | INT (Primary Key) |
-| title    | VARCHAR(255)      |
-| author   | VARCHAR(255)      |
-| genre    | VARCHAR(50)       |
-| quantity | INT               |
+```sql
+library
+```
 
-### Members Table
-
-| Column    | Type              |
-| --------- | ----------------- |
-| member_id | INT (Primary Key) |
-| name      | VARCHAR(255)      |
-| phone     | VARCHAR(20)       |
-| email     | VARCHAR(255)      |
-
-### Borrow Records Table
-
-| Column      | Type              |
-| ----------- | ----------------- |
-| record_id   | INT (Primary Key) |
-| member_id   | INT (Foreign Key) |
-| book_id     | INT (Foreign Key) |
-| borrow_date | DATE              |
-| return_date | DATE              |
+The database is created automatically by the application if it does not already exist.
 
 ---
 
-## Installation
+### Books Table
+
+| Column     | Type                             | Description                |
+| ---------- | -------------------------------- | -------------------------- |
+| `book_id`  | INT, Primary Key, Auto Increment | Unique ID for each book    |
+| `title`    | VARCHAR(255), NOT NULL           | Book title                 |
+| `author`   | VARCHAR(255), NOT NULL           | Book author                |
+| `genre`    | VARCHAR(50)                      | Book category or genre     |
+| `quantity` | INT, DEFAULT 1                   | Number of available copies |
+
+---
+
+### Members Table
+
+| Column      | Type                             | Description               |
+| ----------- | -------------------------------- | ------------------------- |
+| `member_id` | INT, Primary Key, Auto Increment | Unique ID for each member |
+| `name`      | VARCHAR(255), NOT NULL           | Member name               |
+| `phone`     | VARCHAR(20)                      | Member phone number       |
+| `email`     | VARCHAR(255)                     | Member email address      |
+
+---
+
+### Borrow Records Table
+
+| Column        | Type                             | Description                      |
+| ------------- | -------------------------------- | -------------------------------- |
+| `record_id`   | INT, Primary Key, Auto Increment | Unique ID for each borrow record |
+| `member_id`   | INT, Foreign Key                 | References `members.member_id`   |
+| `book_id`     | INT, Foreign Key                 | References `books.book_id`       |
+| `borrow_date` | DATE                             | Date when the book was borrowed  |
+| `return_date` | DATE                             | Date when the book was returned  |
+
+---
+
+## Installation and Setup
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/library-management-system-python-mysql.git
-cd library-management-system-python-mysql
+git clone https://github.com/ShikharPandey0170/library-management-system.git
+cd library-management-system
 ```
 
+---
+
 ### 2. Install Dependencies
+
+Install the required Python package using `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
+Or install PyMySQL directly:
 
 ```bash
 pip install pymysql
 ```
 
+---
+
 ### 3. Configure MySQL
 
-Update the database credentials in the source code:
+Make sure MySQL is installed and running on your system.
+
+Update the MySQL credentials in `database.py` according to your local MySQL setup:
 
 ```python
 connection = sql.connect(
@@ -105,16 +168,26 @@ connection = sql.connect(
 )
 ```
 
+The project uses a MySQL database named:
+
+```sql
+library
+```
+
+---
+
 ### 4. Run the Application
 
+Run the project using:
+
 ```bash
-python library_management_system.py
+python main.py
 ```
 
 The application will automatically:
 
-* Create the database if it does not exist
-* Create required tables
+* Create the `library` database if it does not already exist
+* Create the required tables if they do not already exist
 * Launch the CLI menu
 
 ---
@@ -122,6 +195,8 @@ The application will automatically:
 ## Main Menu
 
 ```text
+Library Management System
+
 1. Add Book
 2. View Books
 3. Search Books
@@ -140,37 +215,59 @@ The application will automatically:
 
 ---
 
+## How the System Works
+
+1. The program starts from `main.py`.
+2. `main.py` calls the database setup function from `database.py`.
+3. The database and required tables are created automatically if they do not already exist.
+4. The user selects an option from the CLI menu.
+5. Based on the selected option:
+
+   * Book operations are handled by `book_functions.py`
+   * Member operations are handled by `member_functions.py`
+   * Borrowing and return operations are handled by `borrow_functions.py`
+6. Data is stored permanently in the MySQL database.
+
+---
+
 ## Sample Learning Outcomes
 
 This project demonstrates:
 
-* Python Functions
-* MySQL Database Design
-* CRUD Operations
-* SQL Joins
-* Foreign Keys
-* Exception Handling
-* Database Connectivity using PyMySQL
-* Menu-Driven CLI Development
+* Python functions
+* Modular programming
+* MySQL database design
+* CRUD operations
+* SQL JOIN operations
+* Foreign key relationships
+* Database connectivity using PyMySQL
+* Menu-driven CLI development
+* Basic exception handling
+* Collaborative GitHub workflow
 
 ---
 
 ## Future Improvements
 
-* Login and Authentication System
-* Fine Calculation for Late Returns
-* Due Date Tracking
-* Book Availability Reports
-* Input Validation Enhancements
-* Export Records to CSV
-* Modular File Structure
-* Graphical User Interface (GUI)
+* Login and authentication system
+* Admin and librarian roles
+* Fine calculation for late returns
+* Due date tracking
+* Book availability reports
+* Better input validation
+* Prevent deletion of books or members with borrowing history
+* Prevent duplicate return of the same borrow record
+* Handle invalid book IDs, member IDs, and record IDs safely
+* Export borrow records to CSV
+* Search books by genre
+* Graphical User Interface using Tkinter
+* Web version using Flask or Django
 
 ---
 
-## Author
+## Authors
 
-Shikhar Pandey
-Prisha Gupta
+* Shikhar Pandey
+* Prisha Gupta
 
-Project developed collaboratively using Python and MYSQL.
+Project developed collaboratively using **Python** and **MySQL**.
