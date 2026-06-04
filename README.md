@@ -133,7 +133,7 @@ The database is created automatically by the application if it does not already 
 
 ```bash
 git clone https://github.com/ShikharPandey0170/library-management-system.git
-cd library-management-system
+cd main.py
 ```
 
 ---
