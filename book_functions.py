@@ -128,32 +128,22 @@ def delete_book(book_id):
         if 'connection' in locals():
             connection.close()
   
-# --- LOCAL TESTING BLOCK ---
-
-
-
 
 
 # TESTING BLOCK 
 if __name__ == "__main__":
     print("--- Starting Database Function Test ---")
-    
-    # 1. Test Adding a Book
+|
     add_book("Twisted Games", "Ana Huang", "Fiction", 5)
     add_book("The Hobbit", "J.R.R. Tolkien", "Fantasy", 3)
-    # 2. Test Viewing all Books
-   
+    
     print("\nTesting: View all books")
     view_books()
-    # 3. Test Searching for a Book
-   
+    
     print("\nTesting: Search functionality")
     search_books("Ana")
-    # 4. Test Updating (Let's change Harry Potter's quantity to 10)
-    # Note: Check your printed database list to confirm Harry Potter's book_id matches!
-   
+    
     print("\nTesting: Update book ID 1")
     update_book(book_id=1, quantity=10)
     
-    # 5. Check changes
     view_books()
