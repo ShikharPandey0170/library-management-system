@@ -4,6 +4,8 @@ from database import setup_database
 from database import get_connection
 
 def add_book(title, author, genre, quantity):
+    title = title.strip()
+    author = author.strip()
     connection = get_connection()
     if connection is None:
         return
@@ -16,16 +18,25 @@ def add_book(title, author, genre, quantity):
         existing_book = cursor.fetchone()
 
         if existing_book:
-            new_qty = existing_book[4] + quantity 
-            update_sql = "UPDATE books SET quantity = %s WHERE book_id = %s"
-            cursor.execute(update_sql, (new_qty, existing_book[0])) 
-            print(f"\n✔️ Book already exists. Updated quantity to {new_qty}.")
+            print(f"\n⚠️ Notice: '{title}' by {author} already exists in the library.")
+            print(f"Current stock quantity: {existing_book[1]}")
+            user_choice = input(f"Do you want to add {quantity} more to the existing stock? (yes/no): ").strip().lower()
+            
+            if user_choice in ['yes', 'y']:
+                new_qty = existing_book[1] + quantity
+                update_sql = "UPDATE books SET quantity = %s WHERE book_id = %s"
+                cursor.execute(update_sql, (new_qty, existing_book[0]))
+                connection.commit()
+                print(f"✔️ Stock updated! New total quantity: {new_qty}")
+            else:
+                print("❌ Operation cancelled. No changes were made to the database.")
+                
         else:
             insert_sql = "INSERT INTO books (title, author, genre, quantity) VALUES (%s, %s, %s, %s)"
             cursor.execute(insert_sql, (title, author, genre, quantity))
-            print("\n✔️ New book added successfully!")
-            
-        connection.commit()
+            connection.commit()
+            print(f"\n✔️ Success: New book '{title}' added to the library inventory!")
+        
     except Exception as e:
         print(f"\n❌ Error adding/updating book: {e}")
     finally:
@@ -40,7 +51,6 @@ def view_books():
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM books;")
         books = cursor.fetchall()
-    
         if not books:
             print("No books found.")
             return
@@ -62,10 +72,8 @@ def search_books(keyword):
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM books WHERE title LIKE %s OR author LIKE %s;", ('%' + keyword + '%', '%' + keyword + '%'))
         books = cursor.fetchall()
-    
         if not books:
             print("No books found matching the keyword.")
-    
         for book in books:
             print(book)
     
@@ -96,8 +104,6 @@ def update_book(book_id, title=None, author=None, genre=None, quantity=None):
             cursor.execute("UPDATE books SET quantity = %s WHERE book_id = %s;", (quantity, book_id))
         connection.commit()
         print("Book updated successfully!")
-
-       
     
     except Exception as e:
         print(f"\n❌ Error updating book: {e}")
@@ -123,26 +129,31 @@ def delete_book(book_id):
             connection.close()
   
 # --- LOCAL TESTING BLOCK ---
+
+
+
+
+
+# TESTING BLOCK 
 if __name__ == "__main__":
     print("--- Starting Database Function Test ---")
     
     # 1. Test Adding a Book
     add_book("Twisted Games", "Ana Huang", "Fiction", 5)
     add_book("The Hobbit", "J.R.R. Tolkien", "Fantasy", 3)
-    
     # 2. Test Viewing all Books
+   
     print("\nTesting: View all books")
     view_books()
-    
     # 3. Test Searching for a Book
+   
     print("\nTesting: Search functionality")
     search_books("Ana")
-    
     # 4. Test Updating (Let's change Harry Potter's quantity to 10)
     # Note: Check your printed database list to confirm Harry Potter's book_id matches!
+   
     print("\nTesting: Update book ID 1")
     update_book(book_id=1, quantity=10)
-    
     
     # 5. Check changes
     view_books()
