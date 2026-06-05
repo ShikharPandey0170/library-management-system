@@ -133,7 +133,7 @@ def delete_book(book_id):
 # TESTING BLOCK 
 if __name__ == "__main__":
     print("--- Starting Database Function Test ---")
-|
+
     add_book("Twisted Games", "Ana Huang", "Fiction", 5)
     add_book("The Hobbit", "J.R.R. Tolkien", "Fantasy", 3)
     
