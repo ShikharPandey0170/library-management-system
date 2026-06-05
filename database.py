@@ -1,6 +1,8 @@
 import pymysql as sql
 
 def setup_database():
+    connection = None
+    cursor = None
     try:
         connection = sql.connect(
             host="localhost",
@@ -47,11 +49,16 @@ def setup_database():
         connection.commit()
         print("Database connected successfully!")
 
-        cursor.close()
-        connection.close()
+      
 
     except sql.Error as e:
         print(f"Error setting up database: {e}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 
 def get_connection():
@@ -67,3 +74,8 @@ def get_connection():
     except sql.Error as e:
         print(f"Error connecting to database: {e}")
         return None
+    
+    # Make sure this is at the absolute bottom of database.py
+if __name__ == "__main__":
+    print("--- Starting Database Setup Script ---")
+    setup_database()
