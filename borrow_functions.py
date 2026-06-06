@@ -2,54 +2,100 @@
 from database import get_connection
 
 def borrow_book(member_id, book_id):
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("SELECT quantity FROM books WHERE book_id = %s;", (book_id,))
-    quantity = cursor.fetchone()[0]
-    if quantity > 0:
-        cursor.execute("INSERT INTO borrow_records (member_id, book_id, borrow_date) VALUES (%s, %s, CURDATE())", (member_id, book_id))
-        cursor.execute("UPDATE books SET quantity = quantity - 1 WHERE book_id = %s;", (book_id,))
-        connection.commit()
-        print("Book borrowed successfully!")
-    else:
-        print("Sorry, this book is currently unavailable.")
+    connection = None
+    cursor = None
     
-    cursor.close()
-    connection.close()
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT quantity FROM books WHERE book_id = %s;", (book_id,))
+        
+        row=cursor.fetchone()
+        if row is None:
+            print("Book not found.")
+            return
+        quantity = row[0]
+        
+        if quantity > 0:
+            cursor.execute("INSERT INTO borrow_records (member_id, book_id, borrow_date) VALUES (%s, %s, CURDATE())", (member_id, book_id))
+            cursor.execute("UPDATE books SET quantity = quantity - 1 WHERE book_id = %s;", (book_id,))
+            connection.commit()
+            print("Book borrowed successfully!")
+        else:
+            print("Sorry, this book is currently unavailable.")
+    
+    except Exception as e:
+        if connection:
+            connection.rollback()
+        print(f"Error borrowing book: {e}")
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 def return_book(record_id):
-    connection = get_connection()
-    cursor = connection.cursor()
+    connection = None
+    cursor = None
+    
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT book_id, return_date FROM borrow_records WHERE record_id = %s;", (record_id,))
+        
+        row = cursor.fetchone()
+        if row is None:
+            print("Borrow record not found.")
+            return
+        if row[1] is not None:
+            print("This book has already been returned.")
+            return
+        book_id = row[0]
 
-    cursor.execute("SELECT book_id FROM borrow_records WHERE record_id = %s;", (record_id,))
-    book_id = cursor.fetchone()[0]
-    cursor.execute("UPDATE borrow_records SET return_date = CURDATE() WHERE record_id = %s;", (record_id,))
-    cursor.execute("UPDATE books SET quantity = quantity + 1 WHERE book_id = %s;", (book_id,))
-    connection.commit()
-    print("Book returned successfully!")
-
-    cursor.close()
-    connection.close()
-
+        cursor.execute("UPDATE borrow_records SET return_date = CURDATE() WHERE record_id = %s;", (record_id,))
+        cursor.execute("UPDATE books SET quantity = quantity + 1 WHERE book_id = %s;", (book_id,))
+        connection.commit()
+        print("Book returned successfully!")
+    
+    except Exception as e:
+        if connection:
+            connection.rollback()
+        print(f"Error returning book: {e}")
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+    
 def view_borrow_records():
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("""
-                   SELECT br.record_id, 
-                   m.name, 
-                   b.title, 
-                   br.borrow_date, 
-                   br.return_date
-                   FROM borrow_records br
-                   JOIN members m ON br.member_id = m.member_id
-                   JOIN books b ON br.book_id = b.book_id;""")
-    records = cursor.fetchall()
-    if not records:
-        print("No borrow records found.")
-    for record in records:
-        print(record)
-
-    cursor.close()
-    connection.close()
+    connection = None
+    cursor = None
+   
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("""
+                       SELECT br.record_id, 
+                       m.name, 
+                       b.title, 
+                       br.borrow_date, 
+                       br.return_date
+                       FROM borrow_records br
+                       JOIN members m ON br.member_id = m.member_id
+                       JOIN books b ON br.book_id = b.book_id;""")
+        records = cursor.fetchall()
+        if not records:
+            print("No borrow records found.")
+        for record in records:
+            print(record)
+    
+    except Exception as e:
+        print(f"Error viewing borrow records: {e}")
+    
+    finally:        
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
