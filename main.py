@@ -4,7 +4,6 @@ from member_functions import add_member, view_members, search_members, update_me
 from borrow_functions import borrow_book, return_book, view_borrow_records
 
 def print_menu():
-    """Prints a beautifully categorized dashboard menu."""
     print("\n" + "═"*50)
     print("📚       LIBRARY MANAGEMENT SYSTEM DASHBOARD       📚")
     print("═"*50)
@@ -23,7 +22,7 @@ def print_menu():
     print("  9. ✏️  Update Member")
     print("  10.🗑️  Remove Member")
     
-    print("\n🔹 [ LOAN & TRANSACTION SYSTEM ]")
+    print("\n🔹 [ BORROW & RETURN SYSTEM ]")
     print("  11.📥 Borrow Book")
     print("  12.📤 Return Book")
     print("  13.📜 View Borrow History")
@@ -33,7 +32,7 @@ def print_menu():
     print("═"*50)
 
 def safe_int_input(prompt):
-    """Helper to ensure a user enters a valid integer without crashing."""
+   
     while True:
         try:
             return int(input(prompt).strip())
@@ -126,6 +125,7 @@ while True:
         return_book(record_id)
     
     elif choice == 13:
+        print("------- Borrow/Return Records ------- ")
         view_borrow_records()
     
     elif choice == 14:
