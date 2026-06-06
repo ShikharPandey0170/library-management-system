@@ -1,4 +1,6 @@
 #Member Functions
+import pymysql
+
 from database import get_connection
 
 def add_member(name, phone, email):
@@ -10,6 +12,11 @@ def add_member(name, phone, email):
         cursor.execute("INSERT INTO members (name, phone, email) VALUES (%s, %s, %s)", (name, phone, email))
         connection.commit()
         print("Member added successfully!")
+    except pymysql.err.IntegrityError as e:
+        if e.args[0] == 1062:  # Duplicate entry error code
+            print("Error: A member with this email already exists.")
+        else:
+            print(f"Database integrity error: {e}")
     except Exception as e:
         print(f"Error adding member: {e}")
     finally:
