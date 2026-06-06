@@ -21,7 +21,7 @@ def setup_database():
             title VARCHAR(255) NOT NULL,
             author VARCHAR(255) NOT NULL,
             genre VARCHAR(50),
-            quantity INT DEFAULT 1
+            quantity INT DEFAULT 1 CHECK (quantity >= 0)
         );
         """)
 
@@ -29,8 +29,8 @@ def setup_database():
         CREATE TABLE IF NOT EXISTS members(
             member_id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
-            phone VARCHAR(20),
-            email VARCHAR(255)
+            phone VARCHAR(20) UNIQUE,
+            email VARCHAR(255) UNIQUE
         );
         """)
 
@@ -39,27 +39,24 @@ def setup_database():
             record_id INT AUTO_INCREMENT PRIMARY KEY,
             member_id INT,
             book_id INT,
-            borrow_date DATE,
+            borrow_date DATE NOT NULL DEFAULT (CURRENT_DATE),
             return_date DATE,
-            FOREIGN KEY (member_id) REFERENCES members(member_id),
-            FOREIGN KEY (book_id) REFERENCES books(book_id)
+            FOREIGN KEY (member_id) REFERENCES members(member_id) ON DELETE CASCADE,
+            FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE RESTRICT
         );
         """)
 
         connection.commit()
-        print("Database connected successfully!")
-
-      
+        print("Database setup completed successfully!")
 
     except sql.Error as e:
-        print(f"Error setting up database: {e}")
+        raise RuntimeError(f"Error setting up database: {e}")
 
     finally:
         if cursor:
             cursor.close()
         if connection:
             connection.close()
-
 
 def get_connection():
     try:
@@ -72,6 +69,4 @@ def get_connection():
         return connection
 
     except sql.Error as e:
-        print(f"Error connecting to database: {e}")
-        return None
-   
+        raise RuntimeError(f"Database connection failed: {e}")
