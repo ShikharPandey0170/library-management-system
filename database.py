@@ -74,8 +74,4 @@ def get_connection():
     except sql.Error as e:
         print(f"Error connecting to database: {e}")
         return None
-    
-    # Make sure this is at the absolute bottom of database.py
-if __name__ == "__main__":
-    print("--- Starting Database Setup Script ---")
-    setup_database()
+   
