@@ -88,9 +88,13 @@ def view_borrow_records():
         records = cursor.fetchall()
         if not records:
             print("No borrow records found.")
+            return
         for record in records:
-            print(record)
-    
+            record_id, member_name, book_title, borrow_date, return_date = record
+            borrow_date_str = borrow_date.strftime("%d %B %Y")
+            return_date_str = return_date.strftime("%d %B %Y") if return_date else "Not returned"
+            print(f"Record ID: {record_id}\nMember: {member_name}\nBook: {book_title}\nBorrow Date: {borrow_date_str}\nReturn Date: {return_date_str}")
+            print("-" * 40)
     except Exception as e:
         print(f"Error viewing borrow records: {e}")
     
