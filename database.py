@@ -21,7 +21,8 @@ def setup_database():
             title VARCHAR(255) NOT NULL,
             author VARCHAR(255) NOT NULL,
             genre VARCHAR(50),
-            quantity INT DEFAULT 1 CHECK (quantity >= 0)
+            quantity INT DEFAULT 1 CHECK (quantity >= 0),
+            UNIQUE (title, author)
         );
         """)
 
