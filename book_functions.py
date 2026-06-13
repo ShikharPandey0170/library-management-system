@@ -21,7 +21,7 @@ def add_book(title, author, genre, quantity):
             print(f"\n⚠️ Notice: '{title}' by {author} already exists in the library.")
             print(f"Current stock quantity: {existing_book[1]}")
             user_choice = input(f"Do you want to add {quantity} more to the existing stock? (yes/no): ").strip().lower()
-            
+           
             if user_choice in ['yes', 'y']:
                 new_qty = existing_book[1] + quantity
                 update_sql = "UPDATE books SET quantity = %s WHERE book_id = %s"
@@ -110,6 +110,7 @@ def update_book(book_id, title=None, author=None, genre=None, quantity=None):
             cursor.execute("UPDATE books SET quantity = %s WHERE book_id = %s;", (quantity, book_id))
         connection.commit()
         print("Book updated successfully!")
+        return
     
     except Exception as e:
         print(f"\n❌ Error updating book: {e}")
@@ -148,6 +149,7 @@ def delete_book(book_id):
             cursor.execute("UPDATE books SET quantity = 0 WHERE book_id = %s;", (book_id,))
             connection.commit()
             print(f"\n✔️ Stock cleared! '{book[0]}' is now marked out of stock.")
+            return
        
         elif choice == "2":
             print(f"\n⚠️ WARNING: Wiping this row can break old borrow history logs.")
@@ -159,6 +161,7 @@ def delete_book(book_id):
                 cursor.execute("DELETE FROM books WHERE book_id = %s;", (book_id,))
                 connection.commit()
                 print(f"\n🗑️ Success: Book ID {book_id} completely removed from the database.")
+                return
             else:
                 print("\n❌ Operation cancelled. No records were destroyed.")
                 
