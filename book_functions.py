@@ -30,12 +30,14 @@ def add_book(title, author, genre, quantity):
                 print(f"✔️ Stock updated! New total quantity: {new_qty}")
             else:
                 print("❌ Operation cancelled. No changes were made to the database.")
+                return
                 
         else:
             insert_sql = "INSERT INTO books (title, author, genre, quantity) VALUES (%s, %s, %s, %s)"
             cursor.execute(insert_sql, (title, author, genre, quantity))
             connection.commit()
             print(f"\n✔️ Success: New book '{title}' added to the library inventory!")
+            return
         
     except Exception as e:
         print(f"\n❌ Error adding/updating book: {e}")
@@ -74,6 +76,7 @@ def search_books(keyword):
         books = cursor.fetchall()
         if not books:
             print("No books found matching the keyword.")
+            return
         for book in books:
             print(book)
     
@@ -96,10 +99,13 @@ def update_book(book_id, title=None, author=None, genre=None, quantity=None):
             return
         if title:
             cursor.execute("UPDATE books SET title = %s WHERE book_id = %s;", (title, book_id))
+            return
         if author:
             cursor.execute("UPDATE books SET author = %s WHERE book_id = %s;", (author, book_id))
+            return
         if genre:
             cursor.execute("UPDATE books SET genre = %s WHERE book_id = %s;", (genre, book_id))
+            return
         if quantity is not None:
             cursor.execute("UPDATE books SET quantity = %s WHERE book_id = %s;", (quantity, book_id))
         connection.commit()
