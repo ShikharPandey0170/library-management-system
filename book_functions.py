@@ -143,7 +143,7 @@ def delete_book(book_id):
             cursor.execute("UPDATE books SET quantity = 0 WHERE book_id = %s;", (book_id,))
             connection.commit()
             print(f"\n✔️ Stock cleared! '{book[0]}' is now marked out of stock.")
-            return
+            
        
         elif choice == "2":
             print(f"\n⚠️ WARNING: Wiping this row can break old borrow history logs.")
@@ -155,7 +155,7 @@ def delete_book(book_id):
                 cursor.execute("DELETE FROM books WHERE book_id = %s;", (book_id,))
                 connection.commit()
                 print(f"\n🗑️ Success: Book ID {book_id} completely removed from the database.")
-                return
+            
             else:
                 print("\n❌ Operation cancelled. No records were destroyed.")
                 
