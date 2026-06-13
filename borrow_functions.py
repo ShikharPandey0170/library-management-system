@@ -15,6 +15,12 @@ def borrow_book(member_id, book_id):
             print("Book not found.")
             return
         quantity = row[0]
+
+        cursor.execute("SELECT member_id FROM members WHERE member_id = %s;", (member_id,))
+        row=cursor.fetchone()
+        if row is None:
+            print("User not found.")
+            return
         
         if quantity > 0:
             cursor.execute("INSERT INTO borrow_records (member_id, book_id, borrow_date) VALUES (%s, %s, CURDATE())", (member_id, book_id))
