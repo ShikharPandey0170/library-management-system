@@ -35,6 +35,7 @@ def view_members():
         members = cursor.fetchall()
         if not members:
             print("No members found.")
+            return
         for member in members:
             print(member)
     except Exception as e:
@@ -56,7 +57,8 @@ def search_members(keyword):
     
         if not members:
             print("No members found matching the keyword.")
-    
+            return
+
         for member in members:
             print(member)
     except Exception as e:
